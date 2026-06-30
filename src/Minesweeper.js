@@ -1,5 +1,5 @@
 class Minesweeper extends HTMLElement {
-    #cellSize = 40;
+    #cellSize = 32;
     #width = 9;
     #height = 9;
     #bombs = 15;
@@ -29,11 +29,15 @@ class Minesweeper extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ['width', 'height', 'bombs'];
+        return ['width', 'height', 'bombs', 'cell-size'];
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
         if (oldValue === newValue) return;
+        if (name === 'cell-size') {
+            this.cellSize = parseInt(newValue);
+            return;
+        }
         this[name] = parseInt(newValue);
     }
 
@@ -91,15 +95,20 @@ class Minesweeper extends HTMLElement {
         `;
     }
 
+    setStyle() {
+        this.shadowRoot.querySelector('style')?.remove();
+        const style = document.createElement('style');
+        style.textContent = this.getBaseStyles();
+        this.shadowRoot.appendChild(style);
+    }
+
     setUpGame() {
         this.#isFirstClick = true;
         this.#cells = [];
 
         this.shadowRoot.innerHTML = "";
 
-        const style = document.createElement('style');
-        style.textContent = this.getBaseStyles();
-        this.shadowRoot.appendChild(style);
+        this.setStyle();
 
         const hudDiv = document.createElement('div');
         hudDiv.classList.add('hud');
@@ -395,12 +404,21 @@ class Minesweeper extends HTMLElement {
 
     set bombs(value) {
         // No máximo o número de células menos 9
-        this.#bombs = Math.min(this.#width * this.#height - 9, Math.max(1, value));
+        this.#bombs = Math.min(this.#width * this.#height - 9, Math.max(0, value));
         this.setUpGame();
     }
 
     get bombs() {
         return this.#bombs;
+    }
+
+    set cellSize(value) {
+        this.#cellSize = Math.max(1, value);
+        this.setStyle();
+    }
+
+    get cellSize() {
+        return this.#cellSize;
     }
 
 }
