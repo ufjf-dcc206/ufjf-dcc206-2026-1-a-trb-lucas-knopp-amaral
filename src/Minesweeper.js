@@ -15,6 +15,7 @@ class Minesweeper extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
+        this.setUpGame();
     }
 
     getBaseStyles() {
@@ -78,7 +79,7 @@ class Minesweeper extends HTMLElement {
         this.shadowRoot.innerHTML = "";
 
         const style = document.createElement('style');
-        style.textContent = this.baseStyles();
+        style.textContent = this.getBaseStyles();
         this.shadowRoot.appendChild(style);
 
         const hudDiv = document.createElement('div');
