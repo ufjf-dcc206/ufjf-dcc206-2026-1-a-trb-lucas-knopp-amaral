@@ -158,6 +158,35 @@ class Minesweeper extends HTMLElement {
         this.#safeSquares = this.#width * this.#height - this.#bombs;
     }
 
+    countAdjacentBombs(row, col) {
+        let count = 0;
+        for (let r = row - 1; r <= row + 1; r++) {
+            for (let c = col - 1; c <= col + 1; c++) {
+                if (r >= 0 && r < this.#height && c >= 0 && c < this.#width) {
+                    const index = r * this.#width + c;
+                    if (this.#cells[index].classList.contains('bomb')) {
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    countFlaggedAdjacentCells(row, col) {
+        let count = 0;
+        for (let r = row - 1; r <= row + 1; r++) {
+            for (let c = col - 1; c <= col + 1; c++) {
+                if (r >= 0 && r < this.#height && c >= 0 && c < this.#width) {
+                    const index = r * this.#width + c;
+                    if (this.#cells[index].classList.contains('flagged')) {
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
+    }
 
     set markedSquares(value) {
         this.#markedSquares = value;
