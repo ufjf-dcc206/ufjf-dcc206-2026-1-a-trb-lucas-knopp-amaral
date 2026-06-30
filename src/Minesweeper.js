@@ -24,7 +24,6 @@ class Minesweeper extends HTMLElement {
 
     attributeChangedCallback(name, oldValue, newValue) {
         if (oldValue === newValue) return;
-        
         this[name] = parseInt(newValue);
     }
 
@@ -129,6 +128,36 @@ class Minesweeper extends HTMLElement {
         }
 
     }
+
+    setCellContent(cell, content) {
+        const icon = cell.querySelector('span');
+        if (icon) {
+            icon.textContent = content;
+        }
+    }
+
+    placeBombs(firstClickedCell) {
+        let bombsPlaced = 0;
+
+        while (bombsPlaced < this.#bombs) {
+            const row = Math.floor(Math.random() * this.#height);
+            const col = Math.floor(Math.random() * this.#width);
+            const index = row * this.#width + col;
+
+            const firstRow = parseInt(firstClickedCell.dataset.row);
+            const firstCol = parseInt(firstClickedCell.dataset.col);
+
+            if (Math.abs(row - firstRow) > 1 || Math.abs(col - firstCol) > 1) {
+                if (!this.#cells[index].classList.contains('bomb')) {
+                    this.#cells[index].classList.add('bomb');
+                    bombsPlaced++;
+                }
+            }
+        }
+
+        this.#safeSquares = this.#width * this.#height - this.#bombs;
+    }
+
 
     set markedSquares(value) {
         this.#markedSquares = value;
