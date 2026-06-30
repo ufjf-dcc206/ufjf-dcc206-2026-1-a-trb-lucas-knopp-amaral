@@ -135,6 +135,11 @@ class Minesweeper extends HTMLElement {
 
             this.#cells.push(cell);
             board.appendChild(cell);
+
+            cell.addEventListener('click', this.onCellLeftClicked);
+            cell.addEventListener('contextmenu', this.onCellRightClicked);
+            cell.addEventListener('mousedown', this.onCellMouseDown);
+            cell.addEventListener('mouseover', this.onCellMouseOver);
         }
 
     }
@@ -196,6 +201,75 @@ class Minesweeper extends HTMLElement {
             }
         }
         return count;
+    }
+
+    onCellMouseOver = (event) => {
+        this.#hoveringCell = event.target;
+    }
+
+    onCellMouseDown = (event) => {
+        if (event.button !== 0) return;
+
+        this.#consumeLeftClick = false;
+        const cell = event.target;
+        this.#holdTimeoutId = window.setTimeout(() => {
+            this.onHoldTimeout(cell);
+        }, this.#timeToHold);
+    }
+
+    onHoldTimeout(cell) {
+        if (cell === this.#hoveringCell) {
+            this.#consumeLeftClick = true;
+            this.onCellRightClicked({ target: cell, preventDefault() { } });
+        }
+    }
+
+    onCellLeftClicked = (event) => {
+        window.clearTimeout(this.#holdTimeoutId);
+
+        if (this.#consumeLeftClick) {
+            this.#consumeLeftClick = false;
+            return;
+        }
+
+        const cell = event.target;
+        if (this.#isFirstClick) {
+            this.placeBombs(cell);
+            this.#isFirstClick = false;
+        }
+        else {
+            this.onRevealedCellClicked(event);
+        }
+        this.revealCell(cell);
+    }
+
+    onCellRightClicked = (event) => {
+        event.preventDefault();
+        const cell = event.target;
+        if (!cell.classList.contains('revealed')) {
+            if (!cell.classList.contains('flagged')) {
+                this.flagCell(cell);
+            } else {
+                this.unflagCell(cell);
+            }
+        }
+    }
+
+    onRevealedCellClicked(event) {
+        const cell = event.target;
+        if (!cell.classList.contains('revealed')) return;
+
+        const adjacentBombs = parseInt(cell.textContent) || 0;
+        if (adjacentBombs === 0) return;
+
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        const flaggedAdjacent = this.countFlaggedAdjacentCells(row, col);
+
+        if (adjacentBombs == flaggedAdjacent) {
+            this.revealAdjacentCells(row, col, true);
+        }
+
     }
 
     revealCell(cell) {
