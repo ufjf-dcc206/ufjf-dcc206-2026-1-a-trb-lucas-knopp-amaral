@@ -161,6 +161,7 @@ class Minesweeper extends HTMLElement {
     }
 
     placeBombs(firstClickedCell) {
+        this.#bombs = Math.min(this.#width * this.#height - 9, Math.max(0, this.#bombs));
         let bombsPlaced = 0;
 
         while (bombsPlaced < this.#bombs) {
