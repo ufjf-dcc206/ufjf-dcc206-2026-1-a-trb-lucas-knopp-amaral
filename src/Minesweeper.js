@@ -310,6 +310,34 @@ class Minesweeper extends HTMLElement {
         }
     }
 
+    finishGame(hasWon) {
+        this.#cells.forEach(cell => {
+            cell.removeEventListener('click', this.onCellLeftClicked);
+            cell.removeEventListener('contextmenu', this.onCellRightClicked);
+            cell.removeEventListener('mousedown', this.onCellMouseDown);
+            cell.removeEventListener('mouseover', this.onCellMouseOver);
+
+        });
+        const gameStateDiv = this.shadowRoot.querySelector('.hud #game-state-info');
+
+        if (hasWon) {
+            gameStateDiv.textContent = 'You won!';
+            this.#cells.forEach(cell => {
+            if (cell.classList.contains('bomb') && !cell.classList.contains('revealed') && !cell.classList.contains('flagged')) {
+                this.flagCell(cell);
+            }
+        });
+            return;
+        }
+        gameStateDiv.textContent = 'Game Over!';
+        this.#cells.forEach(cell => {
+            if (cell.classList.contains('bomb') && !cell.classList.contains('revealed')) {
+                cell.classList.add('revealed');
+                this.setCellContent(cell, '💣');
+            }
+        });
+    }
+
     flagCell(cell) {
         cell.classList.add('flagged');
         this.setCellContent(cell, '🚩');
