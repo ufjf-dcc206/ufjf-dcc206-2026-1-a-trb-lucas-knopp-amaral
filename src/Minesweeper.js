@@ -18,6 +18,16 @@ class Minesweeper extends HTMLElement {
         this.setUpGame();
     }
 
+    static get observedAttributes() {
+        return ['width', 'height', 'bombs'];
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (oldValue === newValue) return;
+        
+        this[name] = parseInt(newValue);
+    }
+
     getBaseStyles() {
         return `
             .board {
@@ -139,6 +149,34 @@ class Minesweeper extends HTMLElement {
 
     get safeSquares() {
         return this.#safeSquares;
+    }
+
+    set width(value) {
+        this.#width = Math.max(1, value);
+        this.setUpGame();
+    }
+
+    get width() {
+        return this.#width;
+    }
+
+    set height(value) {
+        this.#height = Math.max(1, value);
+        this.setUpGame();
+    }
+
+    get height() {
+        return this.#height;
+    }
+
+    set bombs(value) {
+        // No máximo o número de células menos 9
+        this.#bombs = Math.min(this.#width * this.#height - 9, Math.max(1, value));
+        this.setUpGame();
+    }
+
+    get bombs() {
+        return this.#bombs;
     }
 
 }
