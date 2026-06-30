@@ -188,6 +188,18 @@ class Minesweeper extends HTMLElement {
         return count;
     }
 
+    flagCell(cell) {
+        cell.classList.add('flagged');
+        this.setCellContent(cell, '🚩');
+        this.markedSquares++;
+    }
+
+    unflagCell(cell) {
+        cell.classList.remove('flagged');
+        this.setCellContent(cell, '');
+        this.markedSquares--;
+    }
+
     set markedSquares(value) {
         this.#markedSquares = value;
         const infoDiv = this.shadowRoot.querySelector('.hud #bombs-info');
