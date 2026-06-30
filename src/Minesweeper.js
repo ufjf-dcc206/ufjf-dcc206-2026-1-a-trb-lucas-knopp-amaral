@@ -71,6 +71,75 @@ class Minesweeper extends HTMLElement {
         `;
     }
 
+    setUpGame() {
+        this.#isFirstClick = true;
+        this.#cells = [];
+
+        this.shadowRoot.innerHTML = "";
+
+        const style = document.createElement('style');
+        style.textContent = this.baseStyles();
+        this.shadowRoot.appendChild(style);
+
+        const hudDiv = document.createElement('div');
+        hudDiv.classList.add('hud');
+
+        const bombsInfo = document.createElement('div');
+        bombsInfo.id = 'bombs-info';        
+        bombsInfo.textContent = `Bombs: ${this.#bombs} | Marked: 0`;
+        hudDiv.appendChild(bombsInfo);
+
+        const gameStateInfo = document.createElement('div');
+        gameStateInfo.id = 'game-state-info';
+        hudDiv.appendChild(gameStateInfo);
+
+        this.shadowRoot.appendChild(hudDiv);
+        this.markedSquares = 0;
+
+        const board = document.createElement('div');
+        board.classList.add('board');
+        this.shadowRoot.appendChild(board);
+
+        for (let i = 0; i < this.#height * this.#width; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+
+            const row = Math.floor(i / this.#width);
+            const col = i % this.#width;
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+
+            const icon = document.createElement('span');
+            icon.textContent = '';
+            cell.appendChild(icon);
+
+            this.#cells.push(cell);
+            board.appendChild(cell);
+        }
+
+    }
+
+    set markedSquares(value) {
+        this.#markedSquares = value;
+        const infoDiv = this.shadowRoot.querySelector('.hud #bombs-info');
+        infoDiv.textContent = `Bombs: ${this.#bombs} | Marked: ${this.#markedSquares}`;
+    }
+
+    get markedSquares() {
+        return this.#markedSquares;
+    }
+
+    set safeSquares(value) {
+        this.#safeSquares = value;
+        if (this.#safeSquares === 0) {
+            this.finishGame(true);
+        }
+    }
+
+    get safeSquares() {
+        return this.#safeSquares;
+    }
+
 }
 
 customElements.define('campo-minado', Minesweeper);
