@@ -11,6 +11,16 @@ class Minesweeper extends HTMLElement {
     #safeSquares = 0;
     #holdTimeoutId = null;
     #timeToHold = 200;
+    #colors = {
+        1: 'blue',
+        2: 'green',
+        3: 'red',
+        4: 'darkblue',
+        5: 'brown',
+        6: 'cyan',
+        7: 'black',
+        8: 'gray'
+    };
 
     constructor() {
         super();
@@ -188,6 +198,44 @@ class Minesweeper extends HTMLElement {
         return count;
     }
 
+    revealCell(cell) {
+        if (cell.classList.contains('revealed') || cell.classList.contains('flagged')) return;
+
+        if (cell.classList.contains('bomb')) {
+            this.finishGame(false);
+            return;
+        }
+
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        const adjacentBombs = this.countAdjacentBombs(row, col);
+
+        this.safeSquares--;
+        cell.classList.add('revealed');
+        if (adjacentBombs > 0) {
+            this.setCellContent(cell, adjacentBombs);
+            cell.style.color = this.getColorForNumber(adjacentBombs);
+        }
+        else {
+            this.revealAdjacentCells(row, col);
+        }
+
+    }
+
+    revealAdjacentCells(row, col, revealBombs = false) {
+        for (let r = row - 1; r <= row + 1; r++) {
+            for (let c = col - 1; c <= col + 1; c++) {
+                if (r >= 0 && r < this.#height && c >= 0 && c < this.#width) {
+                    const index = r * this.#width + c;
+                    const cell = this.#cells[index];
+                    if (!cell.classList.contains('revealed') && (revealBombs || !cell.classList.contains('bomb'))) {
+                        this.revealCell(cell);
+                    }
+                }
+            }
+        }
+    }
+
     flagCell(cell) {
         cell.classList.add('flagged');
         this.setCellContent(cell, '🚩');
@@ -198,6 +246,10 @@ class Minesweeper extends HTMLElement {
         cell.classList.remove('flagged');
         this.setCellContent(cell, '');
         this.markedSquares--;
+    }
+
+    getColorForNumber(number) {
+        return this.#colors[number] || 'black';
     }
 
     set markedSquares(value) {
